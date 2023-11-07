@@ -10,7 +10,7 @@
         </div>
         <% pictures.forEach(function(picture){ %>
             <div class="text-center">
-              <img class="mb-3" src="data:image/png; base64, <%=picture.src%>" style="width:50px">
+                <img class="mb-3" src="data:image/png;base64, <%= picture.src %>" style="width:50px">
               <h4><%=picture.name%></h4>
             </div>
         <% });%>

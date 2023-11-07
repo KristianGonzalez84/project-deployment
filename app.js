@@ -1,15 +1,16 @@
-require('dotenv').config()
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+require('dotenv').config();
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
 const fileUpload = require('express-fileupload');
+const { auth } = require('express-openid-connect');
 
-var indexRouter = require('./routes/index');
-var picturesRouter = require('./routes/pictures');
+const indexRouter = require('./routes/index');
+const picturesRouter = require('./routes/pictures');
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,6 +23,25 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'pictures')));
+
+// Authentication middleware
+const config = {
+  authRequired: false,
+  auth0Logout: true
+};
+
+const port = process.env.PORT || 3000;
+if (!config.baseURL && !process.env.BASE_URL && process.env.PORT && process.env.NODE_ENV !== 'production') {
+  config.baseURL = `http://localhost:${port}`;
+}
+
+app.use(auth(config));
+
+// Middleware to make the `user` object available for all views
+app.use(function (req, res, next) {
+  res.locals.user = req.oidc.user;
+  next();
+});
 
 app.use('/', indexRouter);
 app.use('/pictures', picturesRouter);
