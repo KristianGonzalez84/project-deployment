@@ -6,7 +6,8 @@ var path = require('path');
 // Or
 /* GET pictures listing. */
 router.get('/', function(req, res, next) {
-  res.render('pictures');
+  const pictures = fs.readdirSync(path.join(__dirname, '../pictures/'));
+  res.render('pictures', { pictures: pictures});
 });
 
 router.post('/', function(req, res, next) {
