@@ -6,7 +6,6 @@ const AWS = require("aws-sdk");
 const s3 = new AWS.S3()
 const { requiresAuth } = require('express-openid-connect');
 
-// Or
 /* GET pictures listing. */
 router.get('/', requiresAuth(), async function(req, res, next) {
   console.log(req.oidc.user)
@@ -27,7 +26,7 @@ router.get('/', requiresAuth(), async function(req, res, next) {
         name: key.split("/").pop()
     }
   }))
-  res.render('index', { pictures: pictures, title: 'Express' });
+  res.render('pictures', { pictures: pictures});
 });
 
 // Route for viewing a specific picture by name
@@ -35,7 +34,7 @@ router.get('/:pictureName', requiresAuth(), async function(req, res,
   next) {
   let my_file = await s3.getObject({
       Bucket: process.env.CYCLIC_BUCKET_NAME,
-      Key: "public/" + req.params.pictureName,
+      Key: req.oidc.user.email + '/' + req.params.pictureName,
     }).promise();
   const picture = {
         src: Buffer.from(my_file.Body).toString('base64'),
